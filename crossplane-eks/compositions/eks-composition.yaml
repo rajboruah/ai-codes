@@ -1,0 +1,107 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xeks-cluster
+  labels:
+    provider: aws
+    service: eks
+spec:
+  compositeTypeRef:
+    apiVersion: aws.platform.io/v1alpha1
+    kind: XEKSCluster
+  mode: Pipeline
+  pipeline:
+  - step: generate-vpc-resources
+    functionRef:
+      name: function-kcl
+    input:
+      apiVersion: krm.kcl.dev/v1alpha1
+      kind: KCLInput
+      spec:
+        source: |
+          import "functions/vpc-function.k" as vpc
+          
+          # Get the composite resource spec
+          spec = option("params").oxr.spec.parameters
+          
+          # Generate VPC resources
+          resources = vpc.generateVPCResources(spec)
+          
+          # Output the resources
+          items = resources
+  
+  - step: generate-iam-resources
+    functionRef:
+      name: function-kcl
+    input:
+      apiVersion: krm.kcl.dev/v1alpha1
+      kind: KCLInput
+      spec:
+        source: |
+          import "functions/iam-function.k" as iam
+          
+          # Get the composite resource spec
+          spec = option("params").oxr.spec.parameters
+          
+          # Generate IAM resources
+          resources = iam.generateIAMResources(spec)
+          
+          # Output the resources
+          items = resources
+  
+  - step: generate-security-groups
+    functionRef:
+      name: function-kcl
+    input:
+      apiVersion: krm.kcl.dev/v1alpha1
+      kind: KCLInput
+      spec:
+        source: |
+          import "functions/security-function.k" as security
+          
+          # Get the composite resource spec
+          spec = option("params").oxr.spec.parameters
+          
+          # Generate security group resources
+          resources = security.generateSecurityGroups(spec)
+          
+          # Output the resources
+          items = resources
+  
+  - step: generate-eks-resources
+    functionRef:
+      name: function-kcl
+    input:
+      apiVersion: krm.kcl.dev/v1alpha1
+      kind: KCLInput
+      spec:
+        source: |
+          import "functions/eks-function.k" as eks
+          
+          # Get the composite resource spec
+          spec = option("params").oxr.spec.parameters
+          
+          # Generate EKS resources
+          resources = eks.generateEKSResources(spec)
+          
+          # Output the resources
+          items = resources
+  
+  - step: update-status
+    functionRef:
+      name: function-kcl
+    input:
+      apiVersion: krm.kcl.dev/v1alpha1
+      kind: KCLInput
+      spec:
+        source: |
+          # Get the composite resource
+          oxr = option("params").oxr
+          
+          # Update status based on managed resources
+          if oxr.spec.parameters.clusterName:
+              oxr.status.clusterStatus = "Provisioning"
+              oxr.status.nodeGroupStatus = "Provisioning"
+          
+          # Output the updated composite resource
+          items = [oxr]

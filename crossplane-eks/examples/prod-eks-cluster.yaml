@@ -1,0 +1,32 @@
+apiVersion: aws.platform.io/v1alpha1
+kind: EKSCluster
+metadata:
+  name: prod-eks-cluster
+  namespace: default
+spec:
+  parameters:
+    clusterName: "prod-eks-cluster"
+    region: "us-east-1"
+    version: "1.31"
+    nodeGroupConfig:
+      instanceTypes: ["m5.large", "m5.xlarge"]
+      minSize: 3
+      maxSize: 20
+      desiredSize: 6
+      diskSize: 100
+      capacityType: "ON_DEMAND"
+    networking:
+      vpcCidr: "10.1.0.0/16"
+      enablePrivateEndpoint: true
+      enablePublicEndpoint: false  # Private cluster for production
+      subnetCidrs:
+        publicSubnets: ["10.1.1.0/24", "10.1.2.0/24", "10.1.3.0/24"]
+        privateSubnets: ["10.1.10.0/24", "10.1.20.0/24", "10.1.30.0/24"]
+    tags:
+      Environment: "production"
+      Team: "platform-engineering"
+      Project: "microservices"
+      Owner: "devops-team"
+      ManagedBy: "crossplane"
+      BackupSchedule: "daily"
+      Monitoring: "enabled"

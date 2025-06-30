@@ -1,0 +1,86 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xeksclusters.aws.platform.io
+spec:
+  group: aws.platform.io
+  names:
+    kind: XEKSCluster
+    plural: xeksclusters
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  clusterName:
+                    type: string
+                    description: "Name of the EKS cluster"
+                  region:
+                    type: string
+                    description: "AWS region for the EKS cluster"
+                    default: "us-west-2"
+                  version:
+                    type: string
+                    description: "Kubernetes version for the EKS cluster"
+                    default: "1.31"
+                  nodeGroupConfig:
+                    type: object
+                    properties:
+                      instanceTypes:
+                        type: array
+                        items:
+                          type: string
+                        default: ["t3.medium"]
+                      minSize:
+                        type: integer
+                        default: 1
+                      maxSize:
+                        type: integer
+                        default: 10
+                      desiredSize:
+                        type: integer
+                        default: 3
+                      diskSize:
+                        type: integer
+                        default: 20
+                  networking:
+                    type: object
+                    properties:
+                      vpcCidr:
+                        type: string
+                        default: "10.0.0.0/16"
+                      enablePrivateEndpoint:
+                        type: boolean
+                        default: true
+                      enablePublicEndpoint:
+                        type: boolean
+                        default: true
+                  tags:
+                    type: object
+                    additionalProperties:
+                      type: string
+                required:
+                - clusterName
+            required:
+            - parameters
+          status:
+            type: object
+            properties:
+              clusterEndpoint:
+                type: string
+              clusterStatus:
+                type: string
+              nodeGroupStatus:
+                type: string
+  claimNames:
+    kind: EKSCluster
+    plural: eksclusters

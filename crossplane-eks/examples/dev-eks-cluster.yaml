@@ -1,0 +1,30 @@
+apiVersion: aws.platform.io/v1alpha1
+kind: EKSCluster
+metadata:
+  name: dev-eks-cluster
+  namespace: default
+spec:
+  parameters:
+    clusterName: "dev-eks-cluster"
+    region: "us-west-2"
+    version: "1.31"
+    nodeGroupConfig:
+      instanceTypes: ["t3.medium", "t3.large"]
+      minSize: 2
+      maxSize: 10
+      desiredSize: 3
+      diskSize: 50
+      capacityType: "ON_DEMAND"
+    networking:
+      vpcCidr: "10.0.0.0/16"
+      enablePrivateEndpoint: true
+      enablePublicEndpoint: true
+      subnetCidrs:
+        publicSubnets: ["10.0.1.0/24", "10.0.2.0/24"]
+        privateSubnets: ["10.0.10.0/24", "10.0.20.0/24"]
+    tags:
+      Environment: "development"
+      Team: "platform-engineering"
+      Project: "microservices"
+      Owner: "devops-team"
+      ManagedBy: "crossplane"
