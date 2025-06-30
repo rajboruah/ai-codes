@@ -28,16 +28,9 @@ generateEKSResources = lambda spec: schemas.EKSClusterSpec {
                     }
                 }
                 resourcesVpcConfig = {
-                    endpointConfigPrivate = spec.networking.enablePrivateEndpoint
-                    endpointConfigPublic = spec.networking.enablePublicEndpoint
+                    endpointConfigPrivate = True
+                    endpointConfigPublic = False
                     subnetIdSelectors = [
-                        {
-                            matchLabels = {
-                                "cluster": spec.clusterName
-                                "component": "networking"
-                                "subnet-type": "public"
-                            }
-                        },
                         {
                             matchLabels = {
                                 "cluster": spec.clusterName

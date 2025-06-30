@@ -7,6 +7,7 @@ schema EKSClusterSpec:
     version: str = "1.31"
     nodeGroupConfig: EKSNodeGroupConfig
     networking: EKSNetworkingConfig
+    bastionConfig?: EKSBastionConfig
     tags?: {str: str}
 
 schema EKSNodeGroupConfig:
@@ -19,16 +20,24 @@ schema EKSNodeGroupConfig:
     capacityType: str = "ON_DEMAND"
 
 schema EKSNetworkingConfig:
-    """EKS Networking configuration schema"""
+    """EKS Networking configuration schema for private-only cluster"""
     vpcCidr: str = "10.0.0.0/16"
     enablePrivateEndpoint: bool = True
-    enablePublicEndpoint: bool = True
+    enablePublicEndpoint: bool = False  # Forced to false for private-only cluster
     subnetCidrs: EKSSubnetCidrs = EKSSubnetCidrs {}
 
 schema EKSSubnetCidrs:
     """Subnet CIDR configuration"""
     publicSubnets: [str] = ["10.0.1.0/24", "10.0.2.0/24"]
     privateSubnets: [str] = ["10.0.10.0/24", "10.0.20.0/24"]
+
+schema EKSBastionConfig:
+    """Bastion host configuration schema"""
+    enabled: bool = True
+    instanceType: str = "t3.micro"
+    ami?: str  # If not specified, uses Amazon Linux 2
+    publicKey?: str  # SSH public key for access
+    allowedCidrs?: [str] = ["0.0.0.0/0"]  # IP ranges allowed to SSH to bastion
 
 schema AWSResource:
     """Base AWS resource schema"""

@@ -87,6 +87,28 @@ spec:
           # Output the resources
           items = resources
   
+  - step: generate-bastion-resources
+    functionRef:
+      name: function-kcl
+    input:
+      apiVersion: krm.kcl.dev/v1alpha1
+      kind: KCLInput
+      spec:
+        source: |
+          import "functions/bastion-function.k" as bastion
+          
+          # Get the composite resource spec
+          spec = option("params").oxr.spec.parameters
+          
+          # Generate bastion resources only if enabled
+          if spec.bastionConfig?.enabled != False:
+              resources = bastion.generateBastionResources(spec)
+          else:
+              resources = []
+          
+          # Output the resources
+          items = resources
+  
   - step: update-status
     functionRef:
       name: function-kcl

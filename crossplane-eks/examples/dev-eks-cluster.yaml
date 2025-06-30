@@ -18,10 +18,15 @@ spec:
     networking:
       vpcCidr: "10.0.0.0/16"
       enablePrivateEndpoint: true
-      enablePublicEndpoint: true
+      enablePublicEndpoint: false  # Private cluster - no public endpoint
       subnetCidrs:
-        publicSubnets: ["10.0.1.0/24", "10.0.2.0/24"]
-        privateSubnets: ["10.0.10.0/24", "10.0.20.0/24"]
+        publicSubnets: ["10.0.1.0/24", "10.0.2.0/24"]  # Still needed for NAT Gateway
+        privateSubnets: ["10.0.10.0/24", "10.0.20.0/24"]  # EKS cluster will use only these
+    bastionConfig:
+      enabled: true
+      instanceType: "t3.micro"
+      allowedCidrs: ["0.0.0.0/0"]  # Restrict this to your IP range for better security
+      # publicKey: "ssh-rsa AAAAB3NzaC1yc2EAAAA..."  # Add your SSH public key here
     tags:
       Environment: "development"
       Team: "platform-engineering"

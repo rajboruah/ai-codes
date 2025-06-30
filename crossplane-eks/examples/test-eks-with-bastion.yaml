@@ -1,0 +1,37 @@
+apiVersion: aws.platform.io/v1alpha1
+kind: EKSCluster
+metadata:
+  name: test-eks-with-bastion
+  namespace: default
+spec:
+  parameters:
+    clusterName: "test-eks-with-bastion"
+    region: "us-west-2"
+    version: "1.31"
+    nodeGroupConfig:
+      instanceTypes: ["t3.medium"]
+      minSize: 1
+      maxSize: 5
+      desiredSize: 2
+      diskSize: 20
+      capacityType: "ON_DEMAND"
+    networking:
+      vpcCidr: "10.0.0.0/16"
+      enablePrivateEndpoint: true
+      enablePublicEndpoint: false
+      subnetCidrs:
+        publicSubnets: ["10.0.1.0/24", "10.0.2.0/24"]
+        privateSubnets: ["10.0.10.0/24", "10.0.20.0/24"]
+    bastionConfig:
+      enabled: true
+      instanceType: "t3.micro"
+      allowedCidrs: ["0.0.0.0/0"]  # Change this to your IP range for security
+      # Uncomment and add your SSH public key for SSH access:
+      # publicKey: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC..."
+    tags:
+      Environment: "test"
+      Team: "platform-engineering"
+      Project: "eks-testing"
+      Owner: "devops-team"
+      ManagedBy: "crossplane"
+      Purpose: "private-cluster-testing"
